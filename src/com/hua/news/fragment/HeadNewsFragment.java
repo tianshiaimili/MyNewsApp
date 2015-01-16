@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.R.integer;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -14,10 +14,10 @@ import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -47,6 +47,7 @@ import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
  * @author zero
  *
  */
+@SuppressLint("NewApi")
 public class HeadNewsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener,
 OnSliderClickListener{
 	/**
@@ -98,6 +99,8 @@ OnSliderClickListener{
 //	private int mState = STATE_ONSCREEN;
 //	private int mScrollY;
 //	private int mMinRawY = 0;
+    private boolean isDownAnimationOver;
+    private boolean isUpAnimationOver;
 	private TranslateAnimation anim;
     
 	Handler mHandler = new Handler() {
@@ -174,6 +177,8 @@ OnSliderClickListener{
         animationAdapter.setAbsListView(mListView);
         mListView.setAdapter(animationAdapter);
         buttomLayoutTabItem = MainActivityPhone.getTab_Bar_Container();
+//        buttomLayoutTabItem.setVisibility(View.GONE);
+        
         buttomLayoutTabItemHeight = buttomLayoutTabItem.getHeight();
         ///load data
         loadData(getNewUrl(index + ""));
@@ -197,21 +202,80 @@ OnSliderClickListener{
 //				  = MainActivityPhone.getTab_Bar_Container();
 				 
 				if(scrollState == OnScrollListener.SCROLL_STATE_IDLE){
-//					MainActivityPhone.getTab_Bar_Container().setVisibility(View.VISIBLE);
-//					layout.scrollTo(0, y);
-//					 mAnimation = new AlphaAnimation(1, 0);
-//					 layout.startAnimation(mAnimation);
-//					mAnimation = 
-//					layout.scrollTo(0, 50);
-				}else {
 					
-//					MainActivityPhone.getTab_Bar_Container().setVisibility(View.GONE);
-//					 LinearLayout layout = MainActivityPhone.getTab_Bar_Container();
-//					 mAnimation = new AlphaAnimation(0, 1);
-//					 layout.startAnimation(mAnimation);
-//					layout.scrollTo(0, -50);
+					if(oldScrollDistance > getScrollY() && !isDownAnimationOver){
+						
+						LogUtils2.i("---------89999--------");
+
+						
+					buttomLayoutTabItem.setVisibility(View.VISIBLE);
+					anim = new TranslateAnimation(0, 0, buttomLayoutTabItem.getHeight(),
+							0);
+					anim.setFillAfter(true);
+					anim.setDuration(300);
+					anim.setAnimationListener(new AnimationListener() {
+						
+						@Override
+						public void onAnimationStart(Animation animation) {
+							
+						}
+						
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+							
+						}
+						
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							isDownAnimationOver = true;
+							isUpAnimationOver = false;
+						}
+					});
+					buttomLayoutTabItem.startAnimation(anim);
+					
+					}else if(oldScrollDistance < getScrollY() && !isUpAnimationOver){
+						
+						LogUtils2.i("+++++++++++88+++++++++++++");
+						
+						buttomLayoutTabItem.setVisibility(View.VISIBLE);
+						anim = new TranslateAnimation(0, 0, 0,
+								buttomLayoutTabItem.getHeight());
+						anim.setFillAfter(true);
+						anim.setDuration(300);
+						anim.setAnimationListener(new AnimationListener() {
+							
+							@Override
+							public void onAnimationStart(Animation animation) {
+								
+							}
+							
+							@Override
+							public void onAnimationRepeat(Animation animation) {
+								
+							}
+							
+							@Override
+							public void onAnimationEnd(Animation animation) {
+								isDownAnimationOver = false;
+								isUpAnimationOver = true;
+							}
+						});
+						buttomLayoutTabItem.startAnimation(anim);
+					}
+					
+				}else {
+//					buttomLayoutTabItem.setVisibility(View.VISIBLE);
+//					anim = new TranslateAnimation(0, 0, 0,
+//							buttomLayoutTabItem.getHeight());
+//					anim.setFillAfter(true);
+//					anim.setDuration(300);
+//					buttomLayoutTabItem.startAnimation(anim);
+//					buttomLayoutTabItem.setVisibility(View.GONE);
 					
 				}
+				
+				oldScrollDistance = getScrollY();
+				
 			}
 			
 			@Override
@@ -226,14 +290,111 @@ OnSliderClickListener{
 //					anim.setDuration(100);
 //					buttomLayoutTabItem.startAnimation(anim);
 				} else {
-					LogUtils2.i("getScrollY()**************  == "+getScrollY());
-//					if(!isHideTabItem){
-						buttomLayoutTabItem.setTranslationY(getScrollY());
+//					LogUtils2.i("getScrollY()**************  == "+getScrollY());
+////					if(!isHideTabItem){
+////						buttomLayoutTabItem.setTranslationY(getScrollY());
+//					buttomLayoutTabItem.setVisibility(View.VISIBLE);
+//						anim = new TranslateAnimation(0, 0, 0,
+//								buttomLayoutTabItem.getHeight());
+//						anim.setFillAfter(true);
+//						anim.setDuration(300);
+//						buttomLayoutTabItem.startAnimation(anim);
+						
 //					}
+					
+//					if(isScrollButtomItemTab() && !isDownAnimationOver){
+//						LogUtils2.i("+++++++++++++++++++++");
+//						buttomLayoutTabItem.setVisibility(View.VISIBLE);
+//						anim = new TranslateAnimation(0, 0, buttomLayoutTabItem.getHeight(),
+//								0);
+//						anim.setFillAfter(true);
+//						anim.setDuration(300);
+//						anim.setAnimationListener(new AnimationListener() {
+//							
+//							@Override
+//							public void onAnimationStart(Animation animation) {
+//								
+//							}
+//							
+//							@Override
+//							public void onAnimationRepeat(Animation animation) {
+//								
+//							}
+//							
+//							@Override
+//							public void onAnimationEnd(Animation animation) {
+//								isDownAnimationOver = true;
+//								isUpAnimationOver = false;
+//							}
+//						});
+//						buttomLayoutTabItem.startAnimation(anim);
+//					}
+					
+//					if(!isScrollButtomItemTab() && !isUpAnimationOver){
+////						buttomLayoutTabItem.setVisibility(View.VISIBLE);
+//						LogUtils2.i("-----------------------");
+//						anim = new TranslateAnimation(0, 0, 0,
+//								buttomLayoutTabItem.getHeight());
+//						anim.setFillAfter(true);
+//						anim.setDuration(300);
+//						anim.setAnimationListener(new AnimationListener() {
+//							
+//							@Override
+//							public void onAnimationStart(Animation animation) {
+//								
+//							}
+//							
+//							@Override
+//							public void onAnimationRepeat(Animation animation) {
+//								
+//							}
+//							
+//							@Override
+//							public void onAnimationEnd(Animation animation) {
+//								isUpAnimationOver = true;
+//								isDownAnimationOver = false;
+//							}
+//						});
+//						buttomLayoutTabItem.startAnimation(anim);
+//					}
+					
+					
 				}
 				
 			}
 		});
+	}
+	
+	public boolean isScrollButtomItemTab(){
+		
+		View c = mListView.getChildAt(0);
+	    int actualyDistance = 0;
+	    int buttomTabItemHeight = buttomLayoutTabItem.getHeight();
+//	    LogUtils2.w("buttomTabItemHeight===  "+buttomTabItemHeight);
+	    
+	    if (c == null) {
+	        return false;
+	    }
+	    int firstVisiblePosition = mListView.getFirstVisiblePosition();
+	    int top = c.getTop();
+	    int scrollDistance = -top + firstVisiblePosition * c.getHeight();
+	    
+	    if(oldScrollDistance > scrollDistance + 5){
+	    	LogUtils2.e("scrollDistance === "+scrollDistance);
+		    LogUtils2.d("oldScrollDistance == "+oldScrollDistance);
+	    	oldScrollDistance = scrollDistance;
+	    	return true;
+	    }
+//	    LogUtils2.e("scrollDistance === "+scrollDistance);
+//	    LogUtils2.d("oldScrollDistance == "+oldScrollDistance);
+	    
+   	 	 oldScrollDistance = scrollDistance;
+   	 	 if(oldScrollDistance == scrollDistance){
+   	 		return false;
+   	 	 }
+		
+	    return false;
+	    
 	}
 	
 	public int getScrollY() {
@@ -249,52 +410,7 @@ OnSliderClickListener{
 	    int top = c.getTop();
 	    int scrollDistance = -top + firstVisiblePosition * c.getHeight();
 	    LogUtils2.e("scrollDistance === "+scrollDistance);
-	    LogUtils2.d("oldScrollDistance == "+oldScrollDistance);
-	    
-	    if(oldScrollDistance > scrollDistance){
-	    	if(!isHideTabItem){
-	    		oldScrollDistance = scrollDistance;
-	    		return 0;
-	    	}
-	    	actualyDistance = oldScrollDistance - scrollDistance;
-	    	if(actualyDistance < 0){
-	    		actualyDistance = 0;
-	    		isHideTabItem = false;
-	    		isFirstScroll = true;
-	    		return actualyDistance;
-	    	}
-	    	
-	    	LogUtils2.w("actualyDistance===  "+actualyDistance);
-	    	return actualyDistance;
-	    }else if(!isFirstScroll){
-	    	LogUtils2.d("***** oldScrollDistance = scrollDistance********");
-	    	 oldScrollDistance = scrollDistance;
-	 	     actualyDistance = scrollDistance;
-//	 	    LogUtils2.i("buttomLayoutTabItem.getHeight == "+buttomLayoutTabItem.getHeight());
-	 	    if(actualyDistance >= buttomTabItemHeight){
-	 	    	actualyDistance = buttomTabItemHeight;
-//	 	    	actualyDistance = scrollDistance;
-	 	    	isHideTabItem = true;
-	 	    	return actualyDistance;
-	 	    }
-	 	    LogUtils2.i("actualyDistance === "+actualyDistance);
-	 	    return actualyDistance;
-		}else {
-			LogUtils2.i("++++++++++++++++");
-			return 0;
-		}
-	    
-//	    LogUtils2.d("***** oldScrollDistance = scrollDistance********");
-//   	 oldScrollDistance = scrollDistance;
-//	     actualyDistance = scrollDistance;
-//	    if(actualyDistance >= buttomTabItemHeight){
-//	    	actualyDistance = buttomTabItemHeight;
-//	    	isHideTabItem = true;
-//	    	return actualyDistance;
-//	    }
-//	    LogUtils2.i("actualyDistance === "+actualyDistance);
-//	    return actualyDistance;
-	    
+	    return scrollDistance;
 	}
 	
 	/**加载数据*/
