@@ -13,11 +13,11 @@ import com.hua.news.bean.NewModle;
 import com.hua.news.utils.LogUtils2;
 import com.hua.news.view.NewItemView;
 
-public class NewAdapter extends BaseAdapter {
+public class YuLeAdapter extends BaseAdapter {
     public static List<NewModle> lists = new ArrayList<NewModle>();
 	private String currentItem;
     private Context context;
-    private static NewAdapter mNewAdapter;
+    private static YuLeAdapter mNewAdapter;
     private int oldIndex = -1;
 
     public void appendList(List<NewModle> list,int newIndex) {
@@ -35,16 +35,16 @@ public class NewAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public static NewAdapter getNewAdapter(Context tempContext){
+    public static YuLeAdapter getNewAdapter(Context tempContext){
     	
     	if(mNewAdapter == null){
-    		mNewAdapter = new NewAdapter(tempContext);
+    		mNewAdapter = new YuLeAdapter(tempContext);
     	}
     	return mNewAdapter;
     	
     }
     
-    public NewAdapter (Context tempContext){
+    public YuLeAdapter (Context tempContext){
     	if(tempContext != null){
     		context = tempContext;
     	}

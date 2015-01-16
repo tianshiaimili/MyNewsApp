@@ -18,10 +18,8 @@
 
 package com.hua.news.widget.swipelistview;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.R.integer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
@@ -45,13 +43,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hua.news.activity.R;
-import com.hua.news.utils.LogUtils2;
 
 /**
  * ListView subclass that provides the swipe functionality
  * 作为页面内自定义的listview
  */
-public class SwipeListView extends ListView implements OnScrollListener {
+public class CopyOfSwipeListView extends ListView implements OnScrollListener {
 
     private boolean isDropDownStyle = true;
     private boolean isOnBottomStyle = true;
@@ -191,7 +188,7 @@ public class SwipeListView extends ListView implements OnScrollListener {
 
     int swipeFrontView = 0;
     int swipeBackView = 0;
-    
+
     /**
      * Internal listener for common swipe events
      */
@@ -210,7 +207,7 @@ public class SwipeListView extends ListView implements OnScrollListener {
      * @param swipeBackView Back Identifier
      * @param swipeFrontView Front Identifier
      */
-    public SwipeListView(Context context, int swipeBackView, int swipeFrontView) {
+    public CopyOfSwipeListView(Context context, int swipeBackView, int swipeFrontView) {
         super(context);
         this.context = context;
         this.swipeFrontView = swipeFrontView;
@@ -222,7 +219,7 @@ public class SwipeListView extends ListView implements OnScrollListener {
      * @see android.widget.ListView#ListView(android.content.Context,
      *      android.util.AttributeSet)
      */
-    public SwipeListView(Context context, AttributeSet attrs) {
+    public CopyOfSwipeListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
         init(attrs);
@@ -232,7 +229,7 @@ public class SwipeListView extends ListView implements OnScrollListener {
      * @see android.widget.ListView#ListView(android.content.Context,
      *      android.util.AttributeSet, int)
      */
-    public SwipeListView(Context context, AttributeSet attrs, int defStyle) {
+    public CopyOfSwipeListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         this.context = context;
         init(attrs);
@@ -310,7 +307,7 @@ public class SwipeListView extends ListView implements OnScrollListener {
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         touchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
-        touchListener = new SwipeListViewTouchListener(this, swipeFrontView, swipeBackView);
+        touchListener = null;//new SwipeListViewTouchListener(this, swipeFrontView, swipeBackView);
         if (swipeAnimationTime > 0) {
             touchListener.setAnimationTime(swipeAnimationTime);
         }
@@ -1534,67 +1531,4 @@ public class SwipeListView extends ListView implements OnScrollListener {
         }
         return super.onTouchEvent(event);
     }
-    
-
-//    //这里添加 是为了 滑动可以隐藏底部的部分
-//	private int mItemCount;
-//	private int mItemOffsetY[];
-////	private List<E>
-//	private List<Integer> mItemList;
-//	private boolean scrollIsComputed = false;
-//	private int mHeight;
-//
-//	/**
-//	 * Listview height
-//	 * @return
-//	 */
-//	public int getListHeight() {
-//		return mHeight;
-//	}
-//
-//
-//	public void computeScrollY() {
-//		mHeight = 0;
-//		mItemCount = getAdapter().getCount();
-//		LogUtils2.e("mItemCount=="+mItemCount);
-////		if (mItemOffsetY == null) {
-////			mItemOffsetY = new int[mItemCount];
-////			mItemList = new ArrayList<Integer>();
-////		}
-//		
-//		if(mItemList == null){
-//			mItemList = new ArrayList<Integer>();
-//		}
-//		for (int i = 0; i < mItemCount; ++i) {
-//			View view = getAdapter().getView(i, null, this);
-//			view.measure(
-//					MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-//					MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-////			mItemOffsetY[i] = mHeight;
-//			mItemList.add(mHeight);
-//			mHeight += view.getMeasuredHeight();
-//		}
-//		scrollIsComputed = true;
-//		LogUtils2.i("mHeight=="+mHeight);
-//	}
-//    
-//
-//	public boolean scrollYIsComputed() {
-//		return scrollIsComputed;
-//	}
-//	
-//
-//	public int getComputedScrollY() {
-//		int pos, nScrollY, nItemY;
-//		View view = null;
-//		pos = getFirstVisiblePosition();
-//		view = getChildAt(0);
-//		nItemY = view.getTop();
-////		nScrollY = mItemOffsetY[pos] - nItemY;
-//		nScrollY = mItemList.get(pos) - nItemY;
-//		LogUtils2.i("nScrollY=="+nScrollY+" ----  pos="+pos+" ---  nItemY=="+nItemY);
-//		return nScrollY;
-//	}
-//    
-    
 }

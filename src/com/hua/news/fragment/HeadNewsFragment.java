@@ -4,19 +4,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.R.integer;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.hua.news.activity.MainActivityPhone;
@@ -50,9 +55,7 @@ OnSliderClickListener{
     protected SliderLayout mDemoSlider;
     /**the SwipeRefreshLayout which can pull to refresh*/
     protected SwipeRefreshLayout swipeLayout;
-    /**
-     * 整个布局的listview
-     */
+    /*** 整个布局的listview*/
 //    @ViewById(R.id.listview)
     protected SwipeListView mListView;
 //    @ViewById(R.id.progressBar)
@@ -73,7 +76,29 @@ OnSliderClickListener{
     private Context mContext;
     private static final int RESPONSE_OK = 0;
     
-    private Animation mAnimation;// = new TranslateAnimation(fromXDelta, toXDelta, fromYDelta, toYDelta);
+    /**这是底部显示的tab item部分 ，这里主要是想滑动listview 实现隐藏*/
+    private LinearLayout buttomLayoutTabItem;
+//    /***/
+    private int buttomLayoutTabItemHeight;
+    /**当上滑的时候 记录滑动的距离 一般是正数*/
+    private int upScrollDistance ;
+    /**当下滑的时候 也记录滑动的距离，
+     * 一开始 应该是上滑，那么记录上滑的距离，*/
+    private int downScrollDistance;
+    /**记录 滑动了的距离，如果新的滑动的距离变小了 说明往下滑动了
+     * 那么就计算 新旧的 差值，然后判断是否出现 下tab item*/
+    private int oldScrollDistance;
+    private boolean isHideTabItem;
+    private boolean isFirstScroll;
+    
+    
+//	private static final int STATE_ONSCREEN = 0;
+//	private static final int STATE_OFFSCREEN = 1;
+//	private static final int STATE_RETURNING = 2;
+//	private int mState = STATE_ONSCREEN;
+//	private int mScrollY;
+//	private int mMinRawY = 0;
+	private TranslateAnimation anim;
     
 	Handler mHandler = new Handler() {
 		public void handleMessage(Message message) {
@@ -148,7 +173,8 @@ OnSliderClickListener{
         AnimationAdapter animationAdapter = new CardsAnimationAdapter(newAdapter);
         animationAdapter.setAbsListView(mListView);
         mListView.setAdapter(animationAdapter);
-        
+        buttomLayoutTabItem = MainActivityPhone.getTab_Bar_Container();
+        buttomLayoutTabItemHeight = buttomLayoutTabItem.getHeight();
         ///load data
         loadData(getNewUrl(index + ""));
 
@@ -164,21 +190,22 @@ OnSliderClickListener{
         
         mListView.setOnScrollListener(new OnScrollListener() {
 			
-			@Override
+			@Override  
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
 				LogUtils2.i("******onScrollStateChanged**********");
-				
-//				 LinearLayout layout = MainActivityPhone.getTab_Bar_Container();
+				LogUtils2.i("what is the scrollY distance == "+view.getScrollY());
+//				  = MainActivityPhone.getTab_Bar_Container();
+				 
 				if(scrollState == OnScrollListener.SCROLL_STATE_IDLE){
-					MainActivityPhone.getTab_Bar_Container().setVisibility(View.VISIBLE);;
-					
+//					MainActivityPhone.getTab_Bar_Container().setVisibility(View.VISIBLE);
+//					layout.scrollTo(0, y);
 //					 mAnimation = new AlphaAnimation(1, 0);
 //					 layout.startAnimation(mAnimation);
 //					mAnimation = 
 //					layout.scrollTo(0, 50);
 				}else {
 					
-					MainActivityPhone.getTab_Bar_Container().setVisibility(View.GONE);
+//					MainActivityPhone.getTab_Bar_Container().setVisibility(View.GONE);
 //					 LinearLayout layout = MainActivityPhone.getTab_Bar_Container();
 //					 mAnimation = new AlphaAnimation(0, 1);
 //					 layout.startAnimation(mAnimation);
@@ -191,10 +218,83 @@ OnSliderClickListener{
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				
+				/** this can be used if the build is below honeycomb **/
+				if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
+//					anim = new TranslateAnimation(0, 0, buttomLayoutTabItem.getY(),
+//							150);
+//					anim.setFillAfter(true);
+//					anim.setDuration(100);
+//					buttomLayoutTabItem.startAnimation(anim);
+				} else {
+					LogUtils2.i("getScrollY()**************  == "+getScrollY());
+//					if(!isHideTabItem){
+						buttomLayoutTabItem.setTranslationY(getScrollY());
+//					}
+				}
+				
 			}
 		});
-        
-        
+	}
+	
+	public int getScrollY() {
+	    View c = mListView.getChildAt(0);
+	    int actualyDistance = 0;
+	    int buttomTabItemHeight = buttomLayoutTabItem.getHeight();
+	    LogUtils2.w("buttomTabItemHeight===  "+buttomTabItemHeight);
+	    
+	    if (c == null) {
+	        return 0;
+	    }
+	    int firstVisiblePosition = mListView.getFirstVisiblePosition();
+	    int top = c.getTop();
+	    int scrollDistance = -top + firstVisiblePosition * c.getHeight();
+	    LogUtils2.e("scrollDistance === "+scrollDistance);
+	    LogUtils2.d("oldScrollDistance == "+oldScrollDistance);
+	    
+	    if(oldScrollDistance > scrollDistance){
+	    	if(!isHideTabItem){
+	    		oldScrollDistance = scrollDistance;
+	    		return 0;
+	    	}
+	    	actualyDistance = oldScrollDistance - scrollDistance;
+	    	if(actualyDistance < 0){
+	    		actualyDistance = 0;
+	    		isHideTabItem = false;
+	    		isFirstScroll = true;
+	    		return actualyDistance;
+	    	}
+	    	
+	    	LogUtils2.w("actualyDistance===  "+actualyDistance);
+	    	return actualyDistance;
+	    }else if(!isFirstScroll){
+	    	LogUtils2.d("***** oldScrollDistance = scrollDistance********");
+	    	 oldScrollDistance = scrollDistance;
+	 	     actualyDistance = scrollDistance;
+//	 	    LogUtils2.i("buttomLayoutTabItem.getHeight == "+buttomLayoutTabItem.getHeight());
+	 	    if(actualyDistance >= buttomTabItemHeight){
+	 	    	actualyDistance = buttomTabItemHeight;
+//	 	    	actualyDistance = scrollDistance;
+	 	    	isHideTabItem = true;
+	 	    	return actualyDistance;
+	 	    }
+	 	    LogUtils2.i("actualyDistance === "+actualyDistance);
+	 	    return actualyDistance;
+		}else {
+			LogUtils2.i("++++++++++++++++");
+			return 0;
+		}
+	    
+//	    LogUtils2.d("***** oldScrollDistance = scrollDistance********");
+//   	 oldScrollDistance = scrollDistance;
+//	     actualyDistance = scrollDistance;
+//	    if(actualyDistance >= buttomTabItemHeight){
+//	    	actualyDistance = buttomTabItemHeight;
+//	    	isHideTabItem = true;
+//	    	return actualyDistance;
+//	    }
+//	    LogUtils2.i("actualyDistance === "+actualyDistance);
+//	    return actualyDistance;
+	    
 	}
 	
 	/**加载数据*/
@@ -387,10 +487,6 @@ OnSliderClickListener{
 	public void onResume() {
 		super.onResume();
 		LogUtils2.i("***onResume***");
-		
-		
-		
-		
 	}
 
 

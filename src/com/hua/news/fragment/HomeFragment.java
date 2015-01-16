@@ -269,13 +269,14 @@ public class HomeFragment extends Fragment {
         mNewsFragmentPagerAdapter.appendList(fragments);
     }
     
+    //TODO 初始化Headitem
     public Fragment initFragment(String channelName) {
         if (channelName.equals("头条")) {
             newfragment = new HeadNewsFragment();
         } else if (channelName.equals("足球")) {
-            newfragment = new TestFragment();
+            newfragment = new FoodBallFragment();
         } else if (channelName.equals("娱乐")) {
-            newfragment = new TestFragment();
+            newfragment = new YuLeFragment();
         } else if (channelName.equals("体育")) {
             newfragment = new TestFragment();
         } else if (channelName.equals("财经")) {
